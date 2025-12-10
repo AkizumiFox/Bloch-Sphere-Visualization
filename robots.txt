@@ -1,0 +1,9 @@
+# Robots.txt for Bloch Sphere Visualization
+# https://akizumifox.github.io/bloch/
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://akizumifox.github.io/bloch/sitemap.xml
+

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bloch Sphere - Interactive Quantum State Visualization</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Interactive 3D Bloch Sphere visualization for quantum computing education. Explore qubit states, basis states |0⟩, |1⟩, |+⟩, |−⟩, |i⟩, |-i⟩ and quantum superposition in real-time.">
+    <meta name="keywords" content="Bloch Sphere, quantum computing, qubit, quantum state, visualization, quantum mechanics, superposition, quantum education, Three.js, interactive">
+    <meta name="author" content="Akizumi">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0d1117">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://akizumifox.github.io/bloch/">
+    <meta property="og:title" content="Bloch Sphere - Interactive Quantum State Visualization">
+    <meta property="og:description" content="Explore quantum qubit states on an interactive 3D Bloch Sphere. Perfect for learning quantum computing concepts.">
+    <meta property="og:image" content="https://akizumifox.github.io/bloch/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bloch Sphere - Interactive Quantum State Visualization">
+    <meta name="twitter:description" content="Explore quantum qubit states on an interactive 3D Bloch Sphere.">
+    <meta name="twitter:image" content="https://akizumifox.github.io/bloch/preview.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛️</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛️</text></svg>">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://akizumifox.github.io/bloch/">
+    
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                macros: {
+                    ket: ['\\lvert #1 \\rangle', 1],
+                    bra: ['\\langle #1 \\rvert', 1]
+                }
+            },
+            svg: { fontCache: 'global', scale: 1.0 },
+            startup: {
+                ready: () => {
+                    MathJax.startup.defaultReady();
+                    MathJax.startup.promise.then(() => {
+                        window.mathJaxReady = true;
+                    });
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+
+<div class="app-container">
+    <div id="ui-container">
+        <!-- Collapse Toggle (always visible) -->
+        <button class="collapse-btn" id="collapse-btn" title="Toggle panel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        
+        <div class="panel-content">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <h1>Bloch Sphere</h1>
+                    <div class="panel-subtitle">Quantum State Visualization</div>
+                </div>
+                <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Theta Control -->
+            <div class="control-group">
+                <div class="control-label">
+                    <div class="label-text">
+                        <span class="param-badge" id="theta-badge">\(\theta\)</span>
+                        <span>Polar angle</span>
+                    </div>
+                    <input type="text" class="value-input" id="input-theta" value="0" placeholder="0 to π">
+                </div>
+                <input type="range" id="slider-theta" min="0" max="3.141592653589793" step="0.01" value="0">
+            </div>
+
+            <!-- Phi Control -->
+            <div class="control-group">
+                <div class="control-label">
+                    <div class="label-text">
+                        <span class="param-badge" id="phi-badge">\(\varphi\)</span>
+                        <span>Azimuthal angle</span>
+                    </div>
+                    <input type="text" class="value-input" id="input-phi" value="0" placeholder="0 to 2π">
+                </div>
+                <input type="range" id="slider-phi" min="0" max="6.283185307179586" step="0.01" value="0">
+            </div>
+            
+            <div class="input-hint">Use <strong>pi</strong> in expressions: pi/2, 3*pi/4</div>
+
+            <!-- Basis States -->
+            <div class="section-title">Basis States</div>
+            <div class="btn-grid">
+                <button class="state-btn" onclick="updateState(0, 0)" id="btn-0">\(\ket{0}\)</button>
+                <button class="state-btn" onclick="updateState(Math.PI, 0)" id="btn-1">\(\ket{1}\)</button>
+                <button class="state-btn" onclick="updateState(Math.PI/2, 0)" id="btn-plus">\(\ket{+}\)</button>
+                <button class="state-btn" onclick="updateState(Math.PI/2, Math.PI)" id="btn-minus">\(\ket{-}\)</button>
+                <button class="state-btn" onclick="updateState(Math.PI/2, Math.PI/2)" id="btn-i">\(\ket{i}\)</button>
+                <button class="state-btn" onclick="updateState(Math.PI/2, 3*Math.PI/2)" id="btn-mi">\(\ket{-i}\)</button>
+            </div>
+
+            <!-- Readouts -->
+            <div class="readout">
+                <div class="readout-card">
+                    <div class="readout-label">Bloch Vector</div>
+                    <div class="readout-value" id="readout-coords">\((0.00,\, 0.00,\, 1.00)\)</div>
+                </div>
+                
+                <div class="readout-card">
+                    <div class="readout-label">Quantum State</div>
+                    <div class="readout-value state-vector" id="readout-state">
+                        \(\cos\left(0\right)\ket{0} + e^{i \cdot 0}\sin\left(0\right)\ket{1}\)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="canvas-container"></div>
+</div>
+
+<!-- Info Button -->
+<button class="info-btn" id="info-btn" title="About">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </svg>
+</button>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <div class="modal-title">Made with paws 🐾 by Akizumi 🦊</div>
+        <div class="modal-links">
+            <a href="https://github.com/AkizumiFox" target="_blank" rel="noopener" class="modal-link">
+                <svg viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                GitHub
+            </a>
+            <a href="https://aaronlin1229.github.io/" target="_blank" rel="noopener" class="modal-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                Website
+            </a>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
