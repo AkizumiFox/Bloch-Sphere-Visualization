@@ -2,7 +2,7 @@
 
 An interactive 3D Bloch Sphere for visualizing quantum qubit states.
 
-🔗 **[Live Demo](https://akizumifox.github.io/bloch/)**
+🔗 **[Live Demo](https://akizumifox.github.io/Bloch-Sphere-Visualization/)**
 
 ![Bloch Sphere Preview](preview.png)
 
@@ -38,8 +38,8 @@ An interactive 3D Bloch Sphere for visualizing quantum qubit states.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/AkizumiFox/bloch.git
-   cd bloch
+   git clone https://github.com/AkizumiFox/Bloch-Sphere-Visualization.git
+   cd Bloch-Sphere-Visualization
    ```
 
 2. Start a local server:
